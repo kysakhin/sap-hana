@@ -87,4 +87,44 @@ table.columns = [
 table.primaryKey.pkcolumns = ["ORDER_NUMBER", "ORDER_ITEM"];
 ```
 
-Then load the data: see **Module 5, Tasks 1 and 2**. Don't re-activate a table file after loading it.
+### Load the data (Step 2)
+Do this in order. It is the same procedure as Module 5, Tasks 1 and 2, written out here so this sheet stands alone.
+
+1. **Remote source.** Catalog perspective → Provisioning → Remote Sources → add new:
+
+| Field | Value |
+|---|---|
+| Source name | `RemoteSource_###` |
+| Adapter Name | `FileAdapter` |
+| Location | `agent` |
+| Agent (Group) name | `dpagent` |
+| Root directory | `/GBI_dataset` |
+| Directory fileformat def. | `/GBI_dataset` |
+| Credentials mode | Technical User |
+| Access token | `gbi` |
+
+   **Save**, then refresh to see `Customer.csv`, `Product.csv`, `Sales.csv`.
+
+2. **Virtual tables.** Right-click each file → create virtual table, schema `GBI_###`:
+
+| File | Table name |
+|---|---|
+| Customer.csv | `VT_Customer_###.csv` |
+| Product.csv | `VT_Product_###.csv` |
+| Sales.csv | `VT_Salesdata_###.csv` |
+
+3. **Flowgraphs.** Editor: right-click `gbi-student-###` → New → Flow Graph. Create one per table:
+
+| Flowgraph | Source | Target |
+|---|---|---|
+| `CustomerFlow` | `VT_Customer_###.csv` | `CUSTOMER_ATTR_###` |
+| `ProductFlow` | `VT_Product_###.csv` | `PRODUCT_ATTR_###` |
+| `SalesFlow` | `VT_Salesdata_###.csv` | `SALES_###` |
+
+   For each one:
+   1. Properties (top left) → target schema `GBI_###`.
+   2. Drag in a **Data Source** (the virtual table) and a **Data Sink** (the target table), and connect source → sink.
+   3. Double-click the Data Sink and map the fields (drag the circle on the source field onto the target field). Field mappings are in Module 5, Task 2.
+   4. **Back**, then Save (Ctrl+S).
+   5. Right-click the flowgraph in the navigator → **Execute**, and check the monitoring console.
+   6. Catalog → `GBI_###` → Tables → right-click the table → **Open Content** to confirm the rows.
